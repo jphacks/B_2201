@@ -1,10 +1,14 @@
-# サンプル（プロダクト名）
+# (仮)オフラインワークショップ支援 with Post itアプリ
 
 [![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2022/08/JPHACKS2022_ogp.jpg)](https://www.youtube.com/watch?v=LUPQFB4QyVo)
 
 ## 製品概要
 ### 背景(製品開発のきっかけ、課題等）
+オフラインでブレインストーミングなどワークショップを行った際の成果をオンラインで扱いやすくしたい。
+
 ### 製品説明（具体的な製品の説明）
+Post-itアプリ（[App Store](https://apps.apple.com/jp/app/post-it/id920127738) | [Playストア](https://play.google.com/store/apps/details?id=com.mmm.postit&hl=ja)）を使用して付箋を撮影・文字起こしして、
+公式LINEを介して今回開発するサービスにアップロードすると、様々な可視化を行うことができる。
 ### 特長
 #### 1. 特長1
 #### 2. 特長2
@@ -19,7 +23,6 @@
 ## 開発技術
 ### 活用した技術
 #### API・データ
-* 
 * 
 
 #### フレームワーク・ライブラリ・モジュール
