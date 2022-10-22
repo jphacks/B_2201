@@ -1,5 +1,3 @@
-from msilib.schema import Error
-
 from parser import parse_from_postit
 from goo_labs import get_morph
 
@@ -86,7 +84,7 @@ def handle_file_message(event):
             event.source.user_id,
             ImageSendMessage(url, url)
         )
-    except Error as e:
+    except Exception as e:
         line_bot_api.push_message(
             event.source.user_id,
             TextSendMessage(text='エラーが発生しました。再度お試しください。')
