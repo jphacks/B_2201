@@ -1,6 +1,4 @@
 from msilib.schema import Error
-from dotenv import load_dotenv
-load_dotenv()
 
 from parser import parse_from_postit
 from goo_labs import get_morph

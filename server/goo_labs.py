@@ -2,8 +2,6 @@
 # TODO: 10回試行してもエラーになった時にエラーを返す
 # TODO: そもそも1秒x10回でいいのか検討（タイムアウトはもっと短い？逆に試行回数増えるほど時間延ばす？）
 
-from dotenv import load_dotenv
-load_dotenv()
 import os
 
 import requests
