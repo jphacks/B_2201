@@ -15,7 +15,9 @@ Post-itアプリ（[App Store](https://apps.apple.com/jp/app/post-it/id920127738
 ### 解決出来ること
 ### 今後の展望
 ### 注力したこと（こだわり等）
-* 
+* 既存の技術を活用した
+  - 3MさんのPost-itアプリ内蔵文字認識
+  - NTTレゾナントさんのgooラボAPI
 * 
 
 ## 開発技術
