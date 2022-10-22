@@ -1,12 +1,14 @@
+from msilib.schema import Error
 from dotenv import load_dotenv
 load_dotenv()
 
-from .libs.parser import parse_from_postit
-from .libs.goo_labs import get_morph
+from parser import parse_from_postit
+from goo_labs import get_morph
 
 import os
 from argparse import ArgumentParser
 
+from wordcloud import WordCloud
 from flask import Flask, request, abort, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -17,7 +19,7 @@ from linebot.exceptions import (
     LineBotApiError, InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, FileMessage)
+    MessageEvent, TextMessage, TextSendMessage, FileMessage, ImageSendMessage)
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1, x_proto=1)
@@ -25,6 +27,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1, x_proto=1)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 
+@app.route('/static/<path:path>')
+def send_static_content(path):
+    return send_from_directory('static', path)
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -55,20 +60,40 @@ def handle_text_message(event):
 
 @handler.add(MessageEvent, message=FileMessage)
 def handle_file_message(event):
-    message_content = line_bot_api.get_message_content(event.message.id)
+    try:
+        message_content = line_bot_api.get_message_content(event.message.id)
+        # TODO: iteratorに複数ある場合の対処
+        text = next(message_content.iter_content()).decode()
+        
+        # TODO: テキストファイルじゃないものが送られてきた時の対処。(Excelファイルなら別途それ用のパーサー作りたい)
+        response = parse_from_postit(text)
 
-    # TODO: iteratorに複数ファイルがある場合？の対処
-    text = next(message_content).decode()
-    
-    # TODO: テキストファイルじゃないものが送られてきた時の対処。(Excelファイルなら別途それ用のパーサー作りたい)
-    response = parse_from_postit(text)
+        # とりあえず結合したリストでワードクラウド作成
+        # TODO: せっかくグループ分けしているのでいつか活用する
+        entire_words = ' '.join(sum([element['list'] for element in response['data']],[]))
+        text = ' '.join(get_morph(entire_words))
+        wordcloud = WordCloud(
+            width=800,
+            height=600,
+            font_path='komorebi-gothic.ttf',
+            background_color="white",
+        ).generate(text)
+        filename = response['title'].replace(' ', '_').replace('　', '_') + str(event.timestamp) + '.png'
 
+        wordcloud.to_file('./static/' + filename)
 
-    line_bot_api.reply_message(
-        event.reply_token, [
-            TextSendMessage(text='saving title: ' + response['title'] + '...'),
-        ])
-
+        url = request.url_root + '/static/' + filename
+        app.logger.info("url=" + url)
+        line_bot_api.push_message(
+            event.source.user_id,
+            ImageSendMessage(url, url)
+        )
+    except Error as e:
+        line_bot_api.push_message(
+            event.source.user_id,
+            TextSendMessage(text='エラーが発生しました。再度お試しください。')
+        )
+        print(e)
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
